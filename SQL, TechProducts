@@ -55,3 +55,6 @@ FROM
     ) as temp_total) AS ts
 ORDER BY
     cs.products_count DESC;
+
+/* exploring the satisfaction of Magist's customers*/
+SELECT * FROM magist.order_reviews;
