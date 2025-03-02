@@ -1,0 +1,80 @@
+use magist;
+/* First quastion*/
+SELECT 
+    COUNT(order_id) AS order_count
+FROM
+    orders;
+    
+    
+    /* Second quastion*/
+SELECT 
+    COUNT(order_id), order_status
+FROM
+    orders
+GROUP BY order_status;
+
+/* Third quastion*/
+SELECT 
+    COUNT(order_id) AS number_of_orders,
+    YEAR(order_purchase_timestamp) as year_,
+    MONTH(order_purchase_timestamp) as month_
+FROM
+    orders
+GROUP BY YEAR_ , MONTH_
+ORDER BY YEAR_;
+
+/* Forth quastion*/
+select count( DISTINCT product_id) as products_count from products;
+
+/*fifth Q*/
+SELECT 
+    product_category_name,
+    COUNT(DISTINCT product_id) AS products_count
+FROM
+    products
+GROUP BY product_category_name
+ORDER BY products_count DESC;
+
+/*6 */
+SELECT 
+    COUNT(DISTINCT product_id) AS sold_products
+FROM
+    order_items;
+    
+    /*7 */
+    SELECT 
+    MAX(price), MIN(price)
+FROM
+    order_items;
+    
+    /*8 */
+    SELECT 
+    MAX(payment_value), MIN(payment_value)
+FROM
+    order_payments;
+    
+    
+SELECT 
+    review_score AS rating,
+    COUNT(review_score) AS scores,
+    YEAR(review_creation_date) AS date_
+FROM
+    order_reviews
+GROUP BY date_ , rating
+ORDER BY date_ , rating;
+
+
+
+SELECT
+    geo.state,
+    geo.city,
+    count(order_items.product_id) AS total_quantity
+FROM
+    geo
+JOIN
+    sellers ON geo.zip_code_prefix = sellers.seller_zip_code_prefix
+JOIN
+    order_items ON order_items.seller_id = sellers.seller_id
+GROUP BY
+    geo.state, geo.city;
+ 
