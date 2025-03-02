@@ -1,0 +1,72 @@
+SELECT * FROM magist.sellers;
+select count(sellers.seller_id) from sellers;
+
+/* avg price of tech products*/
+SELECT 
+    products.product_category_name,product_category_name_translation.product_category_name_english, 
+    COUNT(DISTINCT products.product_id) AS products_count, avg(order_items.price)
+FROM
+    products join product_category_name_translation on product_category_name_translation.product_category_name = products.product_category_name 
+    join order_items on order_items.product_id= products.product_id
+    where product_category_name_translation.product_category_name_english in ('computers_accessories', 'watches_gifts,telephony', 'electronics',
+    'consoles_games','audio, dvds_blu_ray', 'computers', 'tablets_printing_image', 'pc_gamer', 'cds_dvds_musicals')
+GROUP BY product_category_name
+ORDER BY products_count DESC;
+
+
+/*number of sellers selling tech products*/
+select count(order_items.seller_id) from order_items join products on products.product_id = order_items.product_id join product_category_name_translation
+on product_category_name_translation.product_category_name_english=products.product_category_name where product_category_name_translation.product_category_name_english IN (
+            'computers_accessories', 'watches_gifts,telephony', 'electronics',
+            'consoles_games', 'audio, dvds_blu_ray', 'computers', 'tablets_printing_image', 'pc_gamer', 'cds_dvds_musicals');
+            
+
+select sum(order_item_id) from order_items;
+select sum(price) from order_items;
+
+select order_items.seller_id, count(order_items.seller_id), sum(order_items.price)
+from order_items join products on products.product_id=order_items.product_id join product_category_name_translation 
+on product_category_name_translation.product_category_name_english= products.product_category_name WHERE
+        product_category_name_translation.product_category_name_english IN (
+            'computers_accessories', 'watches_gifts,telephony', 'electronics',
+            'consoles_games', 'audio, dvds_blu_ray', 'computers', 'tablets_printing_image', 'pc_gamer', 'cds_dvds_musicals')
+            group by seller_id 
+            order by sum(price) desc;
+            
+            
+  /* tech sellers and the percentage of profit*/          
+SELECT 
+    seller_sales.seller_id,
+    seller_sales.items_sold,
+    seller_sales.total_seller_sales,
+    (seller_sales.total_seller_sales * 100.0 / total_sales.grand_total_sales) AS percentage_of_total_sales
+FROM
+    (SELECT 
+        order_items.seller_id,
+            COUNT(order_items.seller_id) AS items_sold,
+            SUM(order_items.price) AS total_seller_sales
+    FROM
+        order_items
+    JOIN products ON products.product_id = order_items.product_id
+    JOIN product_category_name_translation ON product_category_name_translation.product_category_name = products.product_category_name
+    WHERE
+        product_category_name_translation.product_category_name_english 
+        IN ('computers_accessories' , 'watches_gifts,telephony', 'electronics', 'consoles_games', 'audio, dvds_blu_ray', 'computers', 
+        'tablets_printing_image', 'pc_gamer', 'cds_dvds_musicals')
+    GROUP BY order_items.seller_id) AS seller_sales,
+    (SELECT 
+        SUM(total_seller_sales) AS grand_total_sales
+    FROM
+        (SELECT 
+        order_items.seller_id,
+            SUM(order_items.price) AS total_seller_sales
+    FROM
+        order_items
+    JOIN products ON products.product_id = order_items.product_id
+    JOIN product_category_name_translation ON product_category_name_translation.product_category_name = products.product_category_name
+    WHERE
+        product_category_name_translation.product_category_name_english 
+        IN ('computers_accessories' , 'watches_gifts,telephony', 'electronics', 'consoles_games', 'audio, dvds_blu_ray', 
+        'computers', 'tablets_printing_image', 'pc_gamer', 'cds_dvds_musicals')
+    GROUP BY order_items.seller_id) AS temp_total) AS total_sales
+ORDER BY seller_sales.total_seller_sales DESC;
