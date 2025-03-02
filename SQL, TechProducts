@@ -1,0 +1,57 @@
+use magist;
+SELECT 
+    products.product_category_name,product_category_name_translation.product_category_name_english, 
+    COUNT(DISTINCT products.product_id) AS products_count, avg(order_items.price)
+FROM
+    products join product_category_name_translation on product_category_name_translation.product_category_name = products.product_category_name 
+    join order_items on order_items.product_id= products.product_id
+    where product_category_name_translation.product_category_name_english in ('computers_accessories', 'watches_gifts,telephony', 'electronics',
+    'consoles_games','audio, dvds_blu_ray', 'computers', 'tablets_printing_image', 'pc_gamer', 'cds_dvds_musicals')
+GROUP BY product_category_name
+ORDER BY products_count DESC;
+
+
+
+/* Percentage*/
+select sum(order_item_id) from order_items;
+SELECT
+    cs.product_category_name,
+    cs.product_category_name_english,
+    cs.products_count,
+    (cs.products_count * 100.0 / 134936 /*ts.total_products*/) AS percentage_of_total_sales
+FROM
+    (SELECT
+        products.product_category_name,
+        product_category_name_translation.product_category_name_english,
+        COUNT(DISTINCT products.product_id) AS products_count
+    FROM
+        products
+    JOIN
+        product_category_name_translation ON product_category_name_translation.product_category_name = products.product_category_name
+    WHERE
+        product_category_name_translation.product_category_name_english IN (
+            'computers_accessories', 'watches_gifts,telephony', 'electronics',
+            'consoles_games', 'audio, dvds_blu_ray', 'computers', 'tablets_printing_image', 'pc_gamer', 'cds_dvds_musicals'
+        )
+    GROUP BY
+        products.product_category_name, product_category_name_translation.product_category_name_english
+    ) AS cs,
+    (SELECT SUM(products_count) AS total_products
+    FROM (SELECT
+        products.product_category_name,
+        product_category_name_translation.product_category_name_english,
+        COUNT(DISTINCT products.product_id) AS products_count
+    FROM
+        products
+    JOIN
+        product_category_name_translation ON product_category_name_translation.product_category_name = products.product_category_name
+    WHERE
+        product_category_name_translation.product_category_name_english IN (
+            'computers_accessories', 'watches_gifts,telephony', 'electronics',
+            'consoles_games', 'audio, dvds_blu_ray', 'computers', 'tablets_printing_image', 'pc_gamer', 'cds_dvds_musicals'
+        )
+    GROUP BY
+        products.product_category_name, product_category_name_translation.product_category_name_english
+    ) as temp_total) AS ts
+ORDER BY
+    cs.products_count DESC;
